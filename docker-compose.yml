@@ -57,8 +57,11 @@ services:
       - /data/tyr-infra/seq/data:/data
     restart: unless-stopped
     networks:
-      - proxy
-      - infra
+      proxy: {}
+      infra:
+        aliases:
+          - seq
+          - tyr-infra-seq
     healthcheck:
       test: ["CMD-SHELL", "ps aux | grep /seqsvr/Seq | grep -v grep || exit 1"]
     deploy:
