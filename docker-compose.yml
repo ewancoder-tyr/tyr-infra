@@ -2,24 +2,23 @@
 # App name example: tyr-infra_pgadmin.
 
 networks:
-  # Legacy network to connect Caddy to old compose-deployed non-swarm services.
-  typingrealm:
-    name: typingrealm
-    external: true
-  # Used to access services from the internet.
+   # Used to access services from the internet (reverse-proxy).
   proxy:
-    name: tyr-proxy-internal
-    driver: overlay
+    name: tyr-net-proxy
     external: true
   # Used to send logs from services to infra / etc.
-  infra:
-    name: tyr-infrastructure-internal
-    driver: overlay
+  prod-infra:
+    name: tyr-prod-net-infrastructure
+    external: true
+  dev-infra:
+    name: tyr-dev-net-infrastructure
     external: true
   # Used to administer services using tools like pgadmin.
-  admin:
-    name: tyr-administration-internal
-    driver: overlay
+  prod-admin:
+    name: tyr-prod-net-administration
+    external: true
+  dev-admin:
+    name: tyr-dev-net-administration
     external: true
 
 services:
@@ -29,10 +28,12 @@ services:
       - PGADMIN_DEFAULT_EMAIL=ewancoder@gmail.com
       - PGADMIN_DEFAULT_PASSWORD=qwerty123
     volumes:
-      - /data/tyr-infra/pgadmin/data:/var/lib/pgadmin
+      - /data/tyr/infra/pgadmin:/var/lib/pgadmin
     restart: unless-stopped
     networks:
       - proxy
+      - prod-admin
+      - dev-admin
     healthcheck:
       test: ["CMD-SHELL", "wget --spider http://localhost || exit 1"]
     deploy:
@@ -53,16 +54,17 @@ services:
       - SEQ_API_CANONICALURI=https://seq.typingrealm.com
       - SEQ_FIRSTRUN_ADMINPASSWORD=qwerty123
     volumes:
-      - /data/tyr-infra/seq/data:/data
+      - /data/tyr/infra/seq:/data
     restart: unless-stopped
     networks:
-      proxy: {}
-      infra:
+      proxy:
         aliases:
           - seq
-          - tyr-infra-seq
-          - tyr-infra_seq
+      prod-infra:
+        aliases:
           - tyr-prod-infra_seq
+      dev-infra:
+        aliases:
           - tyr-dev-infra_seq
     healthcheck:
       test: ["CMD-SHELL", "ps aux | grep /seqsvr/Seq | grep -v grep || exit 1"]
@@ -80,11 +82,12 @@ services:
     image: redis/redisinsight:latest
     user: 2000:2000
     volumes:
-      - /data/tyr-infra/redisinsight/data:/data
+      - /data/tyr/infra/redisinsight:/data
     restart: unless-stopped
     networks:
       - proxy
-      - admin
+      - prod-admin
+      - dev-admin
     healthcheck:
       test: ["CMD-SHELL", "wget --spider http://127.0.0.1:5540 || exit 1"]
     deploy:
@@ -111,7 +114,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      infra:
+      prod-infra:
         aliases:
           - tyr-prod-infra_cache
     deploy:
@@ -122,7 +125,7 @@ services:
           memory: 100m
       placement:
         constraints:
-          - node.labels.infra=true
+          - node.labels.infra==true
 
   # TODO: Add ports for local development & 'internet' network.
   # Development cross-service cache
@@ -139,10 +142,12 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      infra:
+      dev-infra:
         aliases:
           - tyr-dev-infra_cache
-      admin: {}
+      dev-admin:
+        aliases:
+          - tyr-dev-admin_cache
     deploy:
       resources:
         limits:
@@ -151,4 +156,4 @@ services:
           memory: 100m
       placement:
         constraints:
-          - node.labels.dev-infra=true
+          - node.labels.dev-infra==true
