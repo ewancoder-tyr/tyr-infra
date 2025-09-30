@@ -33,7 +33,6 @@ services:
     restart: unless-stopped
     networks:
       - proxy
-      - admin
     healthcheck:
       test: ["CMD-SHELL", "wget --spider http://localhost || exit 1"]
     deploy:
@@ -62,6 +61,9 @@ services:
         aliases:
           - seq
           - tyr-infra-seq
+          - tyr-infra_seq
+          - tyr-prod-infra_seq
+          - tyr-dev-infra_seq
     healthcheck:
       test: ["CMD-SHELL", "ps aux | grep /seqsvr/Seq | grep -v grep || exit 1"]
     deploy:
@@ -109,8 +111,9 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - infra
-      #- admin    # Disabled in production until needed.
+      infra:
+        aliases:
+          - tyr-prod-infra_cache
     deploy:
       resources:
         limits:
@@ -121,6 +124,7 @@ services:
         constraints:
           - node.labels.infra=true
 
+  # TODO: Add ports for local development & 'internet' network.
   # Development cross-service cache
   dev-cache:
     image: valkey/valkey
@@ -135,8 +139,10 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - infra
-      - admin    # Disabled in production until needed.
+      infra:
+        aliases:
+          - tyr-dev-infra_cache
+      admin: {}
     deploy:
       resources:
         limits:
