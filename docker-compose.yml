@@ -2,6 +2,7 @@
 # App name example: tyr-infra_pgadmin.
 
 networks:
+  internet: # For FoulBot/KartMan, remove later.
    # Used to access services from the internet (reverse-proxy).
   proxy:
     name: tyr-net-proxy
@@ -56,7 +57,10 @@ services:
     volumes:
       - /data/tyr/infra/seq:/data
     restart: unless-stopped
+    ports:
+      - 5341:5341 # For FoulBot/KartMan, remove later.
     networks:
+      internet: # For FoulBot/KartMan, remove later.
       proxy:
         aliases:
           - seq
