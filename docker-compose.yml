@@ -2,20 +2,17 @@
 # App name example: tyr-infra_pgadmin.
 
 networks:
-  internet: # For FoulBot/KartMan, remove later.
-   # Used to access services from the internet (reverse-proxy).
+  typingrealm: # For legacy apps: FoulBot/KartMan.
   proxy:
     name: tyr-net-proxy
     external: true
-  # Used to send logs from services to infra / etc.
-  prod-infra:
+  prod-infra: # Used to send logs from services to infra / etc.
     name: tyr-prod-net-infrastructure
     external: true
   dev-infra:
     name: tyr-dev-net-infrastructure
     external: true
-  # Used to administer services using tools like pgadmin.
-  prod-admin:
+  prod-admin: # Used to administer services using tools like pgadmin.
     name: tyr-prod-net-administration
     external: true
   dev-admin:
@@ -23,7 +20,7 @@ networks:
     external: true
 
 services:
-  pgadmin:
+  pgadmin: # Required to run as 5050 user.
     image: dpage/pgadmin4
     environment:
       - PGADMIN_DEFAULT_EMAIL=ewancoder@gmail.com
@@ -45,7 +42,7 @@ services:
           memory: 200m
       placement:
         constraints:
-          - node.labels.dev-infra==true
+          - node.labels.tyr-dev-infra==true
 
   seq:
     image: datalust/seq
@@ -60,7 +57,9 @@ services:
     ports:
       - 5341:5341 # For FoulBot/KartMan, remove later.
     networks:
-      internet: # For FoulBot/KartMan, remove later.
+      typingrealm: # For FoulBot/KartMan, remove later.
+        aliases:
+          - seq
       proxy:
         aliases:
           - seq
@@ -80,7 +79,7 @@ services:
           memory: 2G
       placement:
         constraints:
-          - node.labels.dev-infra==true
+          - node.labels.tyr-dev-infra==true
 
   redisinsight:
     image: redis/redisinsight:latest
@@ -102,14 +101,14 @@ services:
           memory: 200m
       placement:
         constraints:
-          - node.labels.dev-infra==true
+          - node.labels.tyr-dev-infra==true
 
   # Production cross-service cache
   prod-cache:
     image: valkey/valkey
     user: 2000:2000
     volumes:
-      - /data/tyr-infra/prod-cache/data:/data
+      - /data/tyr/prod/infra/cache:/data
     command: valkey-server --appendonly yes --save 60 1 --dir /data
     restart: unless-stopped
     healthcheck:
@@ -129,7 +128,7 @@ services:
           memory: 100m
       placement:
         constraints:
-          - node.labels.infra==true
+          - node.labels.tyr-prod-infra==true
 
   # TODO: Add ports for local development & 'internet' network.
   # Development cross-service cache
@@ -137,7 +136,7 @@ services:
     image: valkey/valkey
     user: 2000:2000
     volumes:
-      - /data/tyr-infra/dev-cache/data:/data
+      - /data/tyr/dev/infra/cache:/data
     command: valkey-server --appendonly yes --save 60 1 --dir /data
     restart: unless-stopped
     healthcheck:
@@ -160,4 +159,4 @@ services:
           memory: 100m
       placement:
         constraints:
-          - node.labels.dev-infra==true
+          - node.labels.tyr-dev-infra==true
