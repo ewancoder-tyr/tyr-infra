@@ -38,7 +38,7 @@ services:
         published: 443
         mode: host
     volumes:
-      - /data/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - /data/caddy/caddy:/etc/caddy
       - /data/caddy/data:/data
     restart: unless-stopped
     networks:
