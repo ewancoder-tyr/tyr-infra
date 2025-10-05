@@ -1,0 +1,56 @@
+# Stack name: lab-connect
+# App name example: lab-connect_thelounge
+
+networks:
+  internet:
+    name: lab-connect-net-internet
+  proxy:
+    name: tyr-net-proxy
+    external: true
+
+services:
+  thelounge:
+    image: ghcr.io/thelounge/thelounge:latest
+    user: 2000:2000
+    volumes:
+      - /data/lab/connect/thelounge:/var/opt/thelounge
+    restart: unless-stopped
+    networks:
+      - proxy
+      - internet
+    healthcheck:
+      test: wget --spider http://localhost:9000 || exit 1
+    deploy:
+      resources:
+        limits:
+          memory: 500m
+        reservations:
+          memory: 50m
+      placement:
+        constraints:
+          - node.labels.tyr-prod-infra==true
+
+  # Remove this service before deployment, still not sure how to run it.
+  znc:
+    image: lscr.io/linuxserver/znc:latest
+    environment:
+      - PUID=2000
+      - PGID=2000
+      - TZ=Etc/UTC
+    volumes:
+      - /data/lab/connect/znc:/config
+    restart: unless-stopped
+    networks:
+      - proxy
+      - internet
+    healthcheck:
+      test: wget --spider http://localhost:6501 || exit 1
+    deploy:
+      resources:
+        limits:
+          memory: 500m
+        reservations:
+          memory: 50m
+      placement:
+        constraints:
+          - node.labels.tyr-prod-infra==true
