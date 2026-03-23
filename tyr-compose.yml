@@ -99,7 +99,7 @@ services:
 
   seq:
     image: datalust/seq
-    user: 2000:2000
+    user: 1000:1000
     environment:
       - ACCEPT_EULA=Y
       - SEQ_API_CANONICALURI=https://seq.typingrealm.com
@@ -136,7 +136,7 @@ services:
 
   redisinsight:
     image: redis/redisinsight:latest
-    user: 2000:2000
+    user: 1000:1000
     volumes:
       - /data/tyr/infra/redisinsight:/data
     restart: unless-stopped
@@ -159,7 +159,7 @@ services:
   # Production cross-service cache
   prod-cache:
     image: valkey/valkey
-    user: 2000:2000
+    user: 1000:1000
     volumes:
       - /data/tyr/prod/infra/cache:/data
     command: valkey-server --appendonly yes --save 60 1 --dir /data
@@ -187,7 +187,7 @@ services:
   # Development cross-service cache
   dev-cache:
     image: valkey/valkey
-    user: 2000:2000
+    user: 1000:1000
     volumes:
       - /data/tyr/dev/infra/cache:/data
     command: valkey-server --appendonly yes --save 60 1 --dir /data
