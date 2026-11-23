@@ -2,6 +2,7 @@
 # App name example: tyr-infra_pgadmin.
 
 networks:
+  egress: # For internet access.
   typingrealm: # For legacy apps: FoulBot/KartMan.
     name: typingrealm
     external: true
@@ -42,6 +43,7 @@ services:
       - /data/caddy/data:/data
     restart: unless-stopped
     networks:
+      - egress
       - typingrealm
       - proxy
       - prod-proxy
