@@ -29,7 +29,7 @@ case "${1:-}" in
     prod)
         mk /data/caddy/data 0
         mk /data/caddy/config 0
-        mk /data/tyr/prod/infra/cache 999
+        mk /data/tyr/prod/infra/cache 1000
 
         for n in "${networks[@]}"; do
             ensure_net "$n" --driver overlay --internal --opt com.docker.network.driver.mtu=1370
@@ -40,7 +40,7 @@ case "${1:-}" in
         mk /data/tyr/infra/seq 0
         mk /data/tyr/infra/pgadmin 5050
         mk /data/tyr/infra/redisinsight 1000
-        mk /data/tyr/dev/infra/cache 999
+        mk /data/tyr/dev/infra/cache 1000
         ;;
     *) echo "usage: $0 prod|dev" >&2; exit 1 ;;
 esac
