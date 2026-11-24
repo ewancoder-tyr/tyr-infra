@@ -6,8 +6,8 @@ networks:
   typingrealm: # For legacy apps: FoulBot/KartMan.
     name: typingrealm
     external: true
-  proxy:
-    name: tyr-net-proxy
+  infra-proxy:
+    name: tyr-infra-net-proxy
     external: true
   prod-proxy:
     name: tyr-prod-net-proxy
@@ -45,7 +45,7 @@ services:
     networks:
       - egress
       - typingrealm
-      - proxy
+      - infra-proxy
       - prod-proxy
       - dev-proxy
     healthcheck:
@@ -69,7 +69,7 @@ services:
       - /data/tyr/infra/pgadmin:/var/lib/pgadmin
     restart: unless-stopped
     networks:
-      - proxy
+      - infra-proxy
       - prod-admin
       - dev-admin
     healthcheck:
@@ -100,7 +100,7 @@ services:
       typingrealm: # For FoulBot/KartMan, remove later.
         aliases:
           - seq
-      proxy:
+      infra-proxy:
         aliases:
           - seq
       prod-infra:
@@ -128,7 +128,7 @@ services:
       - /data/tyr/infra/redisinsight:/data
     restart: unless-stopped
     networks:
-      - proxy
+      - infra-proxy
       - prod-admin
       - dev-admin
     healthcheck:

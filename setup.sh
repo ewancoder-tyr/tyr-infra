@@ -3,6 +3,7 @@ set -euo pipefail
 [[ $EUID -eq 0 ]] || { echo "run as root" >&2; exit 1; }
 
 networks=(
+    tyr-infra-net-proxy
     tyr-prod-net-proxy
     tyr-prod-net-infrastructure
     tyr-prod-net-administration
